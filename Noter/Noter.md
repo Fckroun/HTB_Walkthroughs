@@ -117,7 +117,7 @@ And successfully got a shell.
 
 Running linpeas revealed an open mysql port and i already have the root creds.
 After some searching i found this Privilege Escalation with MySQL User Defined Functions:
-
+https://book.hacktricks.xyz/network-services-pentesting/pentesting-mysql#privilege-escalation-via-library
 <img src="./img/22.png">
 
 I downloaded the library compiled it and made a text file containing the payload to copy the root flag to /tmp and make it readable.
