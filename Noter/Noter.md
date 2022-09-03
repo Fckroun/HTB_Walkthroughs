@@ -1,10 +1,17 @@
+
+<p align="center">
+
 ## Noter Machine
 
-<img src="./img/box.png" allign="center" alt="Logo">
+<img  width=300 src="./img/box.png" allign="center" alt="Logo">
+
+
 
 ### Machine Stats :
 
-<img src="./img/stats.png">
+<img width=400 src="./img/stats.png">
+
+</p>
 
 #### Walkthrough :
 
