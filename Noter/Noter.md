@@ -1,18 +1,18 @@
 
 
 
-## Noter Machine
+# Noter Machine
 <p align="center">
 <img src="./img/box.png" allign="center" alt="Logo">
 </p>
 
-### Machine Stats :
-
+## Machine Stats :
+<p align="center">
 <img src="./img/stats.png">
+</p>
 
 
-
-#### Walkthrough :
+# Walkthrough :
 
 I started as always by scanning the machine ports :
 
